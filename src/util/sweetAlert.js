@@ -9,3 +9,11 @@ const getSweetAlert = (alertTitle, alertText, alertIcon) => {
 }
 
 export default getSweetAlert;
+
+
+// Swal.fire({
+//   title: 'Success!',
+//   text: 'Your account has been created 🎉',
+//   icon: 'success',
+//   confirmButtonText: 'OK'
+// });

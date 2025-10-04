@@ -1,22 +1,39 @@
-/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { isLoggedInUser, logoutUser } from "../redux/slice/authSlice/checkAuth";
+import toastifyAlert from "../util/toastify";
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState(null);
-  const [scrolled, setScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false),
+    [activeDropdown, setActiveDropdown] = useState(null),
+    [scrolled, setScrolled] = useState(false),
+    { isAuth } = useSelector(state => state.checkAuth),
+    dispatch = useDispatch(),
+    navigate = useNavigate();
+
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
-    };
+    }
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    dispatch(isLoggedInUser());
+  }, []);
+
+  const userLogout = () => {
+    dispatch(logoutUser())
+    toastifyAlert.success("Logged out");
+    navigate('/');
+  }
 
   const toggleDropdown = (dropdown) => {
     setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
@@ -71,14 +88,14 @@ const Navbar = () => {
                 </button>
                 <div className="absolute top-full left-0 mt-2 w-44 xl:w-48 bg-white/10 backdrop-blur-md text-white font-semibold text-base xl:text-lg rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                   <div className="py-3">
-                    {["Web Development", "Data Science", "Design", "Marketing"].map(
-                      (item, idx) => (
+                    {[{ id: 1, title: "Catagory", url: "/category" }, { id: 2, title: "Course", url: "/course" }].map(
+                      (item) => (
                         <Link
-                          key={idx}
-                          to="/courses"
+                          key={item.id}
+                          to={item.url}
                           className="block px-4 py-2 text-sm transition-all duration-300 transform hover:scale-101 hover:bg-white/20 hover:text-white"
                         >
-                          {item}
+                          {item.title}
                         </Link>
                       )
                     )}
@@ -87,12 +104,12 @@ const Navbar = () => {
               </div>
 
 
-              <Link
+              {/* <Link
                 to="/blogs"
                 className="relative text-white font-medium text-base xl:text-lg after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full"
               >
                 Blog
-              </Link>
+              </Link> */}
 
               <Link
                 to="/contact"
@@ -106,9 +123,9 @@ const Navbar = () => {
             {/* Tablet Menu */}
             <div className="hidden md:flex lg:hidden items-center space-x-4">
               {[{ id: 1, title: "Home", url: "/" },
-                { id: 2, title: "About", url: "/about" },
-                { id: 3, title: "Explore", url: "/category" },
-                { id: 4, title: "Contact", url: "/contact" }].map((item) => (
+              { id: 2, title: "About", url: "/about" },
+              { id: 3, title: "Explore", url: "/category" },
+              { id: 4, title: "Contact", url: "/contact" }].map((item) => (
                 <Link
                   key={item.id}
                   to={item.url}
@@ -121,12 +138,38 @@ const Navbar = () => {
 
             {/* Get Started Button (Desktop + Tablet) */}
             <div className="hidden md:block">
-              <Link
-                to="/signin"
-                className="bg-white/20 backdrop-blur-sm border border-white/30 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-semibold hover:bg-white/40 transition-all duration-300 transform hover:scale-105 text-sm lg:text-base"
-              >
-                Get Started
-              </Link>
+              {!isAuth ?
+                <Link
+                  to="/signin"
+                  className="bg-white/20 backdrop-blur-sm border border-white/30 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-semibold hover:bg-white/40 transition-all duration-300 transform hover:scale-105 text-sm lg:text-base"
+                >
+                  Get Started
+                </Link> :
+                <div className="relative group inline-block">
+                  {/* Round Profile Button */}
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg group-hover:bg-white/30 transition-all duration-300 cursor-pointer">
+                    <span className="text-white text-lg sm:text-xl lg:text-2xl font-bold">
+                      L
+                    </span>
+                  </div>
+
+                  {/* Dropdown Menu (visible on hover) */}
+                  <div className="absolute right-0 mt-2 w-40 bg-white/10 backdrop-blur-md rounded-lg shadow-lg py-2 text-white font-medium text-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 hover:bg-white/20 transition-all duration-200"
+                    >
+                      My Profile
+                    </Link>
+                    <button
+                      onClick={() => userLogout()}
+                      className="w-full text-left px-4 py-2 hover:bg-white/20 transition-all duration-200"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              }
             </div>
 
             {/* Mobile Hamburger */}
@@ -170,7 +213,7 @@ const Navbar = () => {
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-white text-lg font-bold">R</span>
+                  <span className="text-white text-lg font-bold">W</span>
                 </div>
                 <span className="text-xl font-bold">WebBeetles</span>
               </div>
@@ -264,7 +307,7 @@ const Navbar = () => {
                         className="overflow-hidden"
                       >
                         <div className="ml-4 mt-2 space-y-1">
-                          {["About", "FAQ", "Privacy Policy", "Terms"].map((item, idx) => (
+                          {["Web Development", "Data Science", "Design", "Marketing"].map((item, idx) => (
                             <Link
                               key={idx}
                               to={`/${item.toLowerCase().replace(" ", "-")}`}
@@ -281,7 +324,7 @@ const Navbar = () => {
                 </div>
 
                 {[{ id: 1, title: "Blog", url: "/" },
-                { id: 2, title: "Contact Us", url: "/" }].map((item) => (
+                { id: 2, title: "Contact", url: "/contact" }].map((item) => (
                   <Link
                     key={item.id}
                     to={item.url}

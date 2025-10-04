@@ -16,6 +16,9 @@ import ResetPassword from "../pages/auth/resetPassword/ResetPassword";
 import Otp from "../pages/auth/otp/Otp";
 import Course from "../pages/Course";
 import Category from "../pages/Category";
+import ContactUs from "../pages/ContactUs";
+import CourseDetails from "../pages/CourseDetails";
+import AboutUs from "../pages/AboutUs";
 
 // Layout wrapper (must be used inside Router!)
 const Layout = ({ children }) => {
@@ -40,9 +43,12 @@ const Routing = () => {
       <ScrollToTop />
       <Routes>
         {/* Pages with Layout */}
-        <Route path="/" element={ <Layout> <Home /></Layout>}/>
-        <Route path="/course" element={ <Layout> <Course /></Layout>}/>
-        <Route path="/category" element={ <Layout> <Category /></Layout>}/>
+        <Route path="/" element={<Layout> <Home /></Layout>} />
+        <Route path="/about" element={<Layout> <AboutUs /></Layout>} />
+        <Route path="/course" element={<Layout> <Course /></Layout>} />
+        <Route path="/course/course-details/:courseName" element={<Layout> <CourseDetails /></Layout>} />
+        <Route path="/category" element={<Layout> <Category /></Layout>} />
+        <Route path="/contact" element={<Layout> <ContactUs /></Layout>} />
 
         {/* Pages (no navbar/footer) */}
         <Route path="/signin" element={<Signin />} />

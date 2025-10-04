@@ -1,8 +1,10 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Laptop, Smartphone, Palette, BarChart, Database, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import { allCategory } from "../redux/slice/categorySlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const categories = [
   {
@@ -45,6 +47,10 @@ const categories = [
 ];
 
 const CategoriesSection = () => {
+
+  const dispatch = useDispatch(),
+    { isCategoryLoading, getCategoryData, isCategoryError } = useSelector(state => state.categoryAuth);
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -82,6 +88,23 @@ const CategoriesSection = () => {
     },
   };
 
+  useEffect(() => {
+    dispatch(allCategory())
+      .then(res => console.log('Category fetching response', res))
+      .catch(err => {
+        getSweetAlert('Oops...', 'Something went wrong!', 'error');
+        console.log('Errror occured', err);
+      })
+  }, []);
+  console.log('Category data',getCategoryData);
+  
+
+  if (isCategoryLoading) {
+    return (
+      <h2 className="text-center">Loading...</h2>
+    )
+  }
+
   return (
     <section className="bg-black text-white px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
       <div className="max-w-6xl mx-auto">
@@ -118,9 +141,9 @@ const CategoriesSection = () => {
           viewport={{ once: true, amount: 0.1 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6"
         >
-          {categories.map((cat, index) => (
+          {getCategoryData.slice(0, 6).map((cat, index) => (
             <motion.div
-              key={cat.id}
+              key={cat._id}
               variants={cardVariants}
               className="max-w-sm mx-auto w-full mt-2"
             >
@@ -133,16 +156,16 @@ const CategoriesSection = () => {
                   bg-purple-700 text-white transition-all duration-300
                   group-hover:bg-white/10 group-hover:backdrop-blur-md group-hover:border group-hover:border-white/20"
                 >
-                  {cat.icon}
+                  <img src={`http://localhost:3005${cat.categoryImage}`} alt="#icon" />
                 </div>
 
                 {/* Content */}
                 <div className="pt-4">
                   <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 group-hover:text-white transition-colors duration-300">
-                    {cat.title}
+                    {cat.name}
                   </h3>
                   <p className="text-sm lg:text-base text-gray-400 group-hover:text-purple-100 transition-colors duration-300 leading-relaxed">
-                    {cat.desc}
+                    {cat.description.length > 100 ? cat.description.slice(0, 100) + '...' : cat.description}
                   </p>
                 </div>
 

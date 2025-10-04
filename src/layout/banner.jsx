@@ -98,9 +98,7 @@ const Banner = () => {
 
               {/* Background Circles */}
               <div className="absolute inset-0 z-10 flex items-center justify-center">
-                <img 
-                  src="/images/circle.png"   
-                  alt="Background Circle"
+                <img src="/images/circle.png" alt="Background Circle"
                   className="w-[28rem] lg:w-[34rem] object-contain pointer-events-none select-none"
                 />
               </div>
@@ -146,7 +144,7 @@ const Banner = () => {
       <div className="absolute bottom-0 left-0 right-0 h-10 sm:h-20 md:h-28 lg:h-10 xl:h-34 bg-gradient-to-t from-black to-transparent z-0"></div>
 
     </section>
-  );
-};
+  )
+}
 
 export default Banner;

@@ -27,14 +27,16 @@ const Signin = () => {
 
     dispatch(userLogin(login_obj))
       .then(res => {
-        console.log('Response in form after user login', res);
-        if (res.payload) {
-          toastifyAlert.success("Login successful");
+        // console.log("Response after user login:", res);
+
+        if (res.meta.requestStatus === "fulfilled") {
+          toastifyAlert.success(res.payload.message);
           sessionStorage.setItem('user_token', res.payload.token);
-          // navigator('');
+          navigator('/');
         }
         else {
-          getSweetAlert('Oops...', 'Something went wrong!', 'error');
+          // getSweetAlert('Oops...', 'Something went wrong!', 'error');
+          getSweetAlert('Oops...', res.payload.message, 'error');
         }
       })
       .catch(err => {
@@ -66,7 +68,7 @@ const Signin = () => {
         <div className="w-full md:w-1/2 flex justify-center md:justify-end h-full items-center">
           <div className="w-full max-w-[500px] lg:max-w-[500px] bg-white/10 backdrop-blur-sm rounded-2xl lg:rounded-3xl p-6 lg:p-8 shadow-2xl my-4">
             <h2 className="text-2xl lg:text-3xl xl:text-4xl font-display text-white text-center mb-6">
-              Welcome to <Link className="text-blue-400" to='/'>WebBeetles</Link>
+              Welcome to <Link className="text-blue-400 font-bold" to='/'>WebBeetles</Link>
             </h2>
 
             <form className="space-y-4 lg:space-y-5 text-white" onSubmit={handleSubmit(loginDataHandler)}>

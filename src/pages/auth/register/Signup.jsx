@@ -7,6 +7,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { userRegister } from '../../../redux/slice/authSlice/authSlice';
 import getSweetAlert from '../../../util/sweetAlert';
 import { MdKeyboardArrowDown } from 'react-icons/md';
+import toastifyAlert from '../../../util/toastify';
+import hotToast from '../../../util/hot-toast';
 
 const Signup = () => {
   const form = useForm(),
@@ -14,36 +16,52 @@ const Signup = () => {
     { errors } = formState,
     dispatch = useDispatch(),
     navigator = useNavigate(),
-    [show, setShow] = useState(false);
+    [show, setShow] = useState(false),
+    [confirmShow, setConfirmShow] = useState(false),
+    imgType = ['jpeg', 'jpg', 'png'];
 
   const registerDataHandler = (data) => {
-    const register_obj = {
-      name: data.name,
-      email: data.email,
-      role: data.role,
-      password: data.password
-    };
 
-    dispatch(userRegister(register_obj))
-      .then(res => {
-        console.log('Response from form', res);
+    const formData = new FormData();
 
-        if (res.payload) {
-          getSweetAlert(
-            'Congrates',
-            'Registration Completed Successfully <br> Please verify your email before logging in',
-            'success'
-          );
-          navigator('/user-signin');
-        } else {
+    formData.append('name', data.name);
+    formData.append('email', data.email);
+    formData.append('password', data.password);
+    formData.append('profileImage', data.profile_img[0]);
+
+    if (data.password !== data.cPassword) {
+      toastifyAlert.warn("Password and confirm password are not same");
+    }
+
+    else if (data.profile_img[0].size / 1024 > 100) {
+      toastifyAlert.warn("Profile image size should less than 100KB");
+    }
+
+    else if (!imgType.includes(data.profile_img[0].type.split('/')[1])) {
+      toastifyAlert.warn("Profile image type should be jpeg / jpg / png");
+    }
+
+    else {
+      dispatch(userRegister(formData))
+        .then(res => {
+          // console.log('Response from registration form', res);
+
+          if (res.meta.requestStatus === "fulfilled") {
+            hotToast(res.payload.message);
+            navigator('/otp', {
+              state: { email: data.email }
+            });
+          }
+          else {
+            getSweetAlert('Oops...', res.payload.message, 'info');
+          }
+        })
+        .catch(err => {
+          console.error('Error occured in user registration', err);
           getSweetAlert('Oops...', 'Something went wrong!', 'error');
-        }
-      })
-      .catch(err => {
-        console.error('Error occured in user registration', err);
-        getSweetAlert('Oops...', 'Something went wrong!', 'error');
-      });
-  };
+        });
+    }
+  }
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4 md:px-10">
@@ -62,9 +80,9 @@ const Signup = () => {
 
         {/* Left Section → Signup Form */}
         <div className="w-full flex justify-center order-1">
-          <div className="w-full max-w-md bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl">
-            <h2 className="text-2xl md:text-3xl font-display text-white text-center mb-4">
-              Welcome to <Link className="text-blue-400" to='/'>WebBeetles</Link>
+          <div className="w-full max-w-md bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-2 shadow-2xl">
+            <h2 className="text-2xl md:text-3xl font-display text-white text-center mb-2">
+              Welcome to <Link className="text-blue-400 font-bold" to='/'>WebBeetles</Link>
             </h2>
 
             <form className="space-y-4" onSubmit={handleSubmit(registerDataHandler)}>
@@ -90,11 +108,20 @@ const Signup = () => {
                     value: /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-zA-Z.]{2,}$/,
                     message: 'Invalid email'
                   }
-                })}/>
+                })} />
               <p className="text-xs text-red-400 mb-2 mt-1">{errors.email?.message}</p>
 
+              {/* Profile-image */}
+              <label className="block text-sm lg:text-base text-white mb-1">Profile Image</label>
+              <input type="file" placeholder="Choose profile image..."
+                className="w-full rounded-full px-6 py-2 lg:py-3 text-sm text-gray-800 bg-white outline-0 mb-0"
+                {...register('profile_img', {
+                  required: 'Required*'
+                })} accept='image/*' />
+              <p className="text-xs text-red-400 mb-2 mt-1">{errors.profile_img?.message}</p>
+
               {/* Role  */}
-              <label className="block text-sm lg:text-base text-white mb-1">Role</label>
+              {/* <label className="block text-sm lg:text-base text-white mb-1">Role</label>
               <div className="relative mb-0">
                 <select
                   className="w-full appearance-none rounded-full px-6 py-2 lg:py-3 text-sm text-gray-800 bg-white outline-0 mb-0 pr-10"
@@ -104,14 +131,14 @@ const Signup = () => {
                   <option value="">Select Role</option>
                   <option value="student">Student</option>
                   <option value="instructor">Instructor</option>
-                </select>
+                </select> */}
 
-                {/* Custom dropdown arrow */}
-                <span className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-500">
+              {/* Custom dropdown arrow */}
+              {/* <span className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-500">
                   <MdKeyboardArrowDown />
                 </span>
               </div>
-              <p className="text-xs text-red-400 mb-2 mt-1">{errors.role?.message}</p>
+              <p className="text-xs text-red-400 mb-2 mt-1">{errors.role?.message}</p> */}
 
 
               {/* Password */}
@@ -119,7 +146,7 @@ const Signup = () => {
               <div className="relative mb-0">
                 <input
                   type={show ? "text" : "password"}
-                  placeholder="Enter your Password"
+                  placeholder="Enter your password"
                   className="w-full rounded-full px-6 pr-10 py-2 lg:py-3 text-sm text-gray-800 bg-white outline-0"
                   {...register('password', {
                     required: 'Required*',
@@ -140,9 +167,26 @@ const Signup = () => {
               </div>
               <p className="text-xs text-red-400 mb-2 mt-1">{errors.password?.message}</p>
 
+              {/* Confirm Password */}
+              <label className="block text-sm lg:text-base text-white mb-1">Confirm Password</label>
+              <div className="relative mb-0">
+                <input
+                  type={confirmShow ? "text" : "password"}
+                  placeholder="Re-enter your password"
+                  className="w-full rounded-full px-6 pr-10 py-2 lg:py-3 text-sm text-gray-800 bg-white outline-0"
+                  {...register('cPassword')} />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-600"
+                  onClick={() => setConfirmShow(!confirmShow)}
+                >
+                  {confirmShow ? <FaRegEyeSlash className='text-[#8200db]' /> : <FaRegEye className='text-[#8200db]' />}
+                </button>
+              </div>
+
               {/* Submit */}
               <button type="submit"
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-full text-base font-semibold mt-2">
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-full text-base font-semibold mt-4">
                 Continue
               </button>
             </form>

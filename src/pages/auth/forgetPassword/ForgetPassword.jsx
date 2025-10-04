@@ -3,9 +3,10 @@ import { useForm } from 'react-hook-form'
 import { FaArrowLeft } from 'react-icons/fa'
 import { useDispatch } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
-import { userLogin } from '../../../redux/slice/authSlice/authSlice'
+import { userForgetPassword, userLogin } from '../../../redux/slice/authSlice/authSlice'
 import toastifyAlert from '../../../util/toastify'
 import getSweetAlert from '../../../util/sweetAlert'
+import hotToast from '../../../util/hot-toast'
 
 const ForgetPassword = () => {
 
@@ -22,25 +23,23 @@ const ForgetPassword = () => {
             email: data.email
         }
 
-                    navigator('/otp');
-
-
-        // dispatch(userLogin(login_obj))
-        //     .then(res => {
-        //         console.log('Response in form after user login', res);
-        //         if (res.payload) {
-        //             toastifyAlert.success("Login successful");
-        //             sessionStorage.setItem('user_token', res.payload.token);
-        //             // navigator('');
-        //         }
-        //         else {
-        //             getSweetAlert('Oops...', 'Something went wrong!', 'error');
-        //         }
-        //     })
-        //     .catch(err => {
-        //         console.error('Error occured in user login', err);
-        //         getSweetAlert('Oops...', 'Something went wrong!', 'error');
-        //     })
+        dispatch(userForgetPassword(login_obj))
+            .then(res => {
+                console.log('Response in form after forget password', res);
+                if (res.meta.requestStatus === "fulfilled") {
+                    hotToast(res.payload.message);
+                    navigator('/reset-password', {
+                        state: { email: data.email}
+                    });
+                }
+                else {
+                    getSweetAlert('Oops...', res.payload.message, 'info');
+                }
+            })
+            .catch(err => {
+                console.error('Error occured in user registration', err);
+                getSweetAlert('Oops...', 'Something went wrong!', 'error');
+            });
     }
 
     return (
@@ -73,7 +72,7 @@ const ForgetPassword = () => {
                         <h2 className="text-2xl lg:text-3xl xl:text-4xl font-semibold text-white text-center mb-6">
                             Forget Password
                         </h2>
-                        
+
                         <p className="text-white text-[14px] lg:text-[18px] xl:text-[20px] text-center mb-10">
                             Please enter your email address we will sent you a confirmation code to set a new password
                         </p>
@@ -84,11 +83,11 @@ const ForgetPassword = () => {
                                     Email Address
                                 </label>
                                 <input type="email" id="emailId" placeholder="Enter email address" {...register('email', {
-                                    // required: 'Required*',
-                                    // pattern: {
-                                    //     value: /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-zA-Z.]{2,}$/,
-                                    //     message: 'Invalid email'
-                                    // }
+                                    required: 'Required*',
+                                    pattern: {
+                                        value: /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-zA-Z.]{2,}$/,
+                                        message: 'Invalid email'
+                                    }
                                 })} className="w-full rounded-full px-6 py-2 lg:py-3 text-sm text-gray-800 bg-white outline-0 mb-0" />
                                 <p className="text-xs text-red-400 mb-2 mt-1">{errors.email?.message}</p>
                             </div>
@@ -99,7 +98,7 @@ const ForgetPassword = () => {
                             </button>
                         </form>
 
-                        <div className="text-center text-white mt-6 text-[14px] lg:text-[18px] xl:text-[20px]">
+                        <div className="text-center text-white mt-6 text-[14px] lg:text-[16px] xl:text-[18px]">
                             Don&apos;t have an account?{" "}
                             <Link to="/signup" className="text-blue-300 hover:text-[#b97fff] font-semibold">
                                 Sign Up

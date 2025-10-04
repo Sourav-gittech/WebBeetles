@@ -1,13 +1,11 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const CoursesSection = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const sectionRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false),
+    [searchTerm, setSearchTerm] = useState(''),
+    sectionRef = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -89,7 +87,7 @@ const CoursesSection = () => {
     }
   ]
 
-    const headerVariants = {
+  const headerVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
       opacity: 1,
@@ -199,7 +197,7 @@ const CoursesSection = () => {
                           <span className="text-gray-400 font-bold line-through text-xs">{course.originalPrice}</span>
                         </div>
 
-                        <button className="
+                        <Link to={`course/course-details/${course.title}`} className="
                           px-4 py-2.5 rounded-full font-bold text-xs
                           bg-purple-700 text-white border border-transparent
                           transition-transform transition-colors duration-300 ease-out
@@ -210,12 +208,12 @@ const CoursesSection = () => {
                           hover:text-white group-hover:text-white
                         ">
                           Join Course
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   </div>
 
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-purple-300/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-purple-300/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl pointer-events-none" />
                 </div>
               </motion.div>
             ))
@@ -230,21 +228,21 @@ const CoursesSection = () => {
           )}
         </motion.div>
         {/* Browse All */}
-                <motion.div
-                  variants={headerVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, amount: 0.2 }}
-                  className="flex justify-center lg:justify-end mt-10 lg:mt-12">
-                  <Link to='/course'
-                    className="bg-purple-700 hover:bg-purple-600 transition-all duration-300 px-6 py-3 rounded-full 
+        <motion.div
+          variants={headerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          className="flex justify-center lg:justify-end mt-10 lg:mt-12">
+          <Link to='/course'
+            className="bg-purple-700 hover:bg-purple-600 transition-all duration-300 px-6 py-3 rounded-full 
                       font-semibold flex items-center gap-2 transform hover:scale-105 active:scale-95 text-sm sm:text-base text-white">
-                    Browse All
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                    </svg>
-                  </Link>
-                </motion.div>
+            Browse All
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
+        </motion.div>
       </div>
     </div>
   );
